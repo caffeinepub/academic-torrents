@@ -1,0 +1,253 @@
+@import "https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0.15 0.005 0;
+    --foreground: 0.88 0.005 0;
+    --card: 0.19 0.005 0;
+    --card-foreground: 0.88 0.005 0;
+    --popover: 0.19 0.005 0;
+    --popover-foreground: 0.88 0.005 0;
+    --primary: 0.65 0.28 355;
+    --primary-foreground: 0.98 0.005 0;
+    --secondary: 0.6 0.22 300;
+    --secondary-foreground: 0.98 0.005 0;
+    --muted: 0.22 0.005 0;
+    --muted-foreground: 0.55 0.005 0;
+    --accent: 0.72 0.25 340;
+    --accent-foreground: 0.1 0.005 0;
+    --destructive: 0.62 0.22 25;
+    --destructive-foreground: 0.98 0.002 0;
+    --border: 0.3 0.01 0;
+    --input: 0.3 0.01 0;
+    --ring: 0.65 0.28 355;
+    --radius: 0rem;
+    --chart-1: 0.65 0.28 355;
+    --chart-2: 0.72 0.25 340;
+    --chart-3: 0.6 0.22 300;
+    --chart-4: 0.78 0.18 70;
+    --chart-5: 0.65 0.16 285;
+    --sidebar: 0.15 0.005 0;
+    --sidebar-foreground: 0.88 0.005 0;
+    --sidebar-primary: 0.65 0.28 355;
+    --sidebar-primary-foreground: 0.98 0.005 0;
+    --sidebar-accent: 0.22 0.005 0;
+    --sidebar-accent-foreground: 0.88 0.005 0;
+    --sidebar-border: 0.3 0.01 0;
+    --sidebar-ring: 0.65 0.28 355;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    border-radius: 0 !important;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "JetBrains Mono", "Courier New", monospace;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    position: relative;
+  }
+
+  /* Scanlines overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.04) 2px,
+      rgba(0, 0, 0, 0.04) 4px
+    );
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "JetBrains Mono", "Courier New", monospace;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes tui-glow {
+  0%,
+  100% {
+    text-shadow: 0 0 8px oklch(0.65 0.28 355 / 0.5);
+  }
+  50% {
+    text-shadow: 0 0 16px oklch(0.65 0.28 355 / 0.9), 0 0 32px
+      oklch(0.72 0.25 340 / 0.3);
+  }
+}
+
+@layer components {
+  /* Blinking cursor */
+  .blink-cursor::after {
+    content: "█";
+    animation: blink 1s step-end infinite;
+    color: oklch(var(--primary));
+    margin-left: 2px;
+  }
+
+  /* TUI panel -- sharp bordered box with floating label */
+  .tui-panel {
+    position: relative;
+    border: 1px solid oklch(var(--border));
+    background: oklch(var(--card));
+    padding: 1rem;
+  }
+
+  .tui-panel-label {
+    position: absolute;
+    top: -0.65em;
+    left: 0.75rem;
+    background: oklch(var(--card));
+    padding: 0 0.35rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: oklch(var(--primary));
+    text-transform: uppercase;
+  }
+
+  .tui-panel-label-secondary {
+    color: oklch(var(--accent));
+  }
+
+  /* TUI panel on background (for hero/layout areas) */
+  .tui-panel-bg {
+    background: oklch(var(--background));
+  }
+  .tui-panel-bg .tui-panel-label {
+    background: oklch(var(--background));
+  }
+
+  /* Dataset card */
+  .dataset-card {
+    border: 1px solid oklch(var(--border));
+    background: oklch(var(--card));
+    padding: 1.25rem;
+    position: relative;
+    transition: border-color 0.15s ease;
+  }
+  .dataset-card:hover {
+    border-color: oklch(var(--primary) / 0.5);
+  }
+  .dataset-card .tui-card-header {
+    position: absolute;
+    top: -0.65em;
+    left: 0.75rem;
+    background: oklch(var(--card));
+    padding: 0 0.35rem;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: oklch(var(--secondary));
+    text-transform: uppercase;
+  }
+
+  /* Stat pill -- bracketed, no pill shape */
+  .stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: oklch(var(--muted-foreground));
+    font-family: "JetBrains Mono", monospace;
+  }
+  .stat-pill::before {
+    content: "[";
+    color: oklch(var(--border) / 1.5);
+  }
+  .stat-pill::after {
+    content: "]";
+    color: oklch(var(--border) / 1.5);
+  }
+
+  /* Permanence banner */
+  .permanence-banner {
+    border-left: 2px solid oklch(var(--primary));
+    background: oklch(0.17 0.01 355);
+    border-top: none;
+    border-right: none;
+    border-bottom: 1px solid oklch(var(--border));
+  }
+
+  /* Disputed banner */
+  .disputed-banner {
+    border-left: 2px solid oklch(0.78 0.18 70);
+    background: oklch(0.18 0.02 70 / 0.3);
+  }
+
+  /* TUI glow title */
+  .tui-glow {
+    animation: tui-glow 2.5s ease-in-out infinite;
+    color: oklch(var(--primary));
+  }
+
+  /* TUI horizontal rule */
+  .tui-rule {
+    border: none;
+    border-top: 1px solid oklch(var(--border));
+    margin: 1.5rem 0;
+    position: relative;
+  }
+  .tui-rule::before {
+    content: "── ── ── ──";
+    position: absolute;
+    top: -0.55em;
+    left: 1rem;
+    background: oklch(var(--background));
+    padding: 0 0.5rem;
+    font-size: 0.6rem;
+    color: oklch(var(--border));
+    letter-spacing: 0.2em;
+  }
+
+  /* TUI prompt */
+  .tui-prompt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: "JetBrains Mono", monospace;
+  }
+  .tui-prompt::before {
+    content: "SEARCH>";
+    color: oklch(var(--primary));
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+}
