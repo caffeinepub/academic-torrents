@@ -26,8 +26,10 @@ import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { Dispute } from "../backend.d";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
   useAdminDeleteDataset,
+  useClaimFirstAdmin,
   useGetAllDisputes,
   useIsAdmin,
   useResolveDispute,
@@ -252,9 +254,27 @@ function DisputeCard({ dispute, index }: { dispute: Dispute; index: number }) {
 export function AdminPage() {
   const { data: isAdmin, isLoading: checkingAdmin } = useIsAdmin();
   const { data: disputes = [], isLoading } = useGetAllDisputes();
+  const { identity } = useInternetIdentity();
+  const principalText = identity?.getPrincipal()?.toString() ?? null;
+  const claimAdmin = useClaimFirstAdmin();
 
   const openDisputes = disputes.filter((d) => "open" in d.status);
   const resolvedDisputes = disputes.filter((d) => !("open" in d.status));
+
+  const isAnonymous = !principalText || principalText.startsWith("2vxsx");
+
+  const handleClaimAdmin = async () => {
+    try {
+      const success = await claimAdmin.mutateAsync();
+      if (success) {
+        toast.success("Admin role claimed");
+      } else {
+        toast.error("Admin already claimed or error occurred");
+      }
+    } catch {
+      toast.error("Admin already claimed or error occurred");
+    }
+  };
 
   if (checkingAdmin) {
     return (
@@ -272,8 +292,11 @@ export function AdminPage() {
 
   if (!isAdmin) {
     return (
-      <div className="container mx-auto px-4 py-16 max-w-md text-center">
-        <div className="tui-panel">
+      <div className="container mx-auto px-4 py-16 max-w-lg space-y-4">
+        <div
+          className="tui-panel text-center"
+          data-ocid="admin.access_denied.panel"
+        >
           <span className="tui-panel-label">ACCESS_DENIED</span>
           <div className="pt-4">
             <Shield className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
@@ -285,6 +308,44 @@ export function AdminPage() {
             </p>
           </div>
         </div>
+
+        {!isAnonymous && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="tui-panel"
+            data-ocid="admin.claim_first_admin.panel"
+          >
+            <span className="tui-panel-label">CLAIM_FIRST_ADMIN</span>
+            <div className="pt-4 space-y-3">
+              <p className="text-xs font-mono text-muted-foreground">
+                &gt; if no admin is assigned yet, you can claim admin below
+              </p>
+              <div className="bg-background border border-border px-3 py-2">
+                <p className="text-xs font-mono text-muted-foreground mb-0.5 uppercase tracking-widest">
+                  YOUR_PRINCIPAL:
+                </p>
+                <p className="text-xs font-mono text-foreground break-all">
+                  &gt; {principalText}
+                </p>
+              </div>
+              <Button
+                onClick={handleClaimAdmin}
+                disabled={claimAdmin.isPending}
+                className="w-full font-mono text-xs tracking-widest uppercase gap-2"
+                data-ocid="admin.claim_admin.button"
+              >
+                {claimAdmin.isPending ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Shield className="w-3 h-3" />
+                )}
+                {claimAdmin.isPending ? "CLAIMING..." : "[CLAIM_ADMIN]"}
+              </Button>
+            </div>
+          </motion.div>
+        )}
       </div>
     );
   }

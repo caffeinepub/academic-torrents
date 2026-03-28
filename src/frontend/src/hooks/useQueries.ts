@@ -130,6 +130,22 @@ export function useIsAdmin() {
   });
 }
 
+export function useClaimFirstAdmin() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation<boolean, Error, void>({
+    mutationFn: async () => {
+      const a = actor as A;
+      if (!a) throw new Error("Not authenticated");
+      return (await a.claimFirstAdmin()) as boolean;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["isAdmin"] });
+      queryClient.invalidateQueries({ queryKey: ["userRole"] });
+    },
+  });
+}
+
 type SubmitParams = {
   title: string;
   abstract_: string;

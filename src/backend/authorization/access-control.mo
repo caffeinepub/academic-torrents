@@ -37,6 +37,16 @@ module {
     };
   };
 
+  // Claim admin if no admin assigned yet -- no secret required.
+  // Returns true if admin was claimed, false if already assigned.
+  public func claimFirstAdmin(state : AccessControlState, caller : Principal) : Bool {
+    if (caller.isAnonymous()) { return false };
+    if (state.adminAssigned) { return false };
+    state.userRoles.add(caller, #admin);
+    state.adminAssigned := true;
+    true;
+  };
+
   public func getUserRole(state : AccessControlState, caller : Principal) : UserRole {
     if (caller.isAnonymous()) { return #guest };
     switch (state.userRoles.get(caller)) {

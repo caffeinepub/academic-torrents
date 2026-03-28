@@ -12,13 +12,8 @@ actor {
   // ── Authorization ──────────────────────────────────────────────
   let _accessControlState : AccessControl.AccessControlState = AccessControl.initState();
 
-  public shared ({ caller }) func _initializeAccessControlWithSecret(userSecret : Text) : async () {
-    switch (Prim.envVar<system>("CAFFEINE_ADMIN_TOKEN")) {
-      case (null) { Runtime.trap("CAFFEINE_ADMIN_TOKEN not set") };
-      case (?adminToken) {
-        AccessControl.initialize(_accessControlState, caller, adminToken, userSecret);
-      };
-    };
+  public shared ({ caller }) func claimFirstAdmin() : async Bool {
+    AccessControl.claimFirstAdmin(_accessControlState, caller);
   };
 
   public query ({ caller }) func getCallerUserRole() : async AccessControl.UserRole {
